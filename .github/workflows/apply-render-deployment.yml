@@ -14,15 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply tested deployment files
+      - name: Restore original LaPasion files
         run: |
-          tar -xzf render-deployment.tar.gz
+          mkdir -p /tmp/lapasion-restore
+          tar -xzf render-deployment.tar.gz -C /tmp/lapasion-restore
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name render-deployment.tar.gz -exec rm -rf {} +
+          cp -a /tmp/lapasion-restore/. .
           rm render-deployment.tar.gz
-          git ls-files -ci --exclude-standard -z | xargs -0 -r git rm --cached --
-      - name: Publish audited application
+      - name: Publish restored application
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Fix confirmed security audit findings"
+          git commit -m "Restore LaPasion to pre-TFA8 state"
           git push
