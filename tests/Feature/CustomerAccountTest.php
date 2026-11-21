@@ -42,10 +42,10 @@ class CustomerAccountTest extends TestCase
     {
         $account = CustomerAccount::factory()->create();
         $this->actingAs($account, 'customer');
-        foreach (['/products', '/customers', '/users', '/sales', '/sales/create', '/users/create', '/products/1/edit'] as $path) {
+        foreach (['/products', '/customers', '/staff', '/sales', '/sales/create', '/staff/create', '/products/1/edit'] as $path) {
             $this->get($path)->assertRedirect('/login');
         }
-        foreach (['/products', '/customers', '/users', '/sales'] as $path) {
+        foreach (['/products', '/customers', '/staff', '/sales'] as $path) {
             $this->post($path, [])->assertRedirect('/login');
         }
         $this->put('/customers/'.$account->customer_id, ['full_name' => 'Hacked'])->assertRedirect('/login');

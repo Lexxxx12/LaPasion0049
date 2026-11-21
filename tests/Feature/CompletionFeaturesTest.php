@@ -157,7 +157,7 @@ class CompletionFeaturesTest extends TestCase
         $this->get('/products?q=Findable&page=2')->assertOk()->assertViewHas('records', fn ($records) => $records->count() === 2);
         $account = CustomerAccount::factory()->create();
         $this->get('/customers?q='.urlencode($account->email))->assertOk()->assertSee($account->email);
-        $this->get('/users?q=Searchable')->assertOk()->assertSee('Searchable staff');
+        $this->get('/staff?q=Searchable')->assertOk()->assertSee('Searchable staff');
         $this->get('/products?q[]=invalid')->assertSessionHasErrors('q');
     }
 

@@ -51,7 +51,7 @@ class FormPersistenceTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['full_name' => 'Mariana Reyes', 'avatar' => null]));
 
-        $this->get('/users')->assertOk()->assertSee('Mariana Reyes: no profile picture');
+        $this->get('/staff')->assertOk()->assertSee('Mariana Reyes: no profile picture');
     }
 
     public function test_uploaded_staff_avatar_is_used_in_navigation(): void

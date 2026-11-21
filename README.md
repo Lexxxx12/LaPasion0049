@@ -4,38 +4,7 @@ La pasión is a Laravel point-of-sale application with inventory, staff and cust
 
 Built with Laravel 13, Blade, Eloquent, MySQL/MariaDB, native CSS, and JavaScript.
 
-[Setup](#setup) · [TFA8 resource controllers and authentication](#tfa8-resource-controllers-and-authentication) · [Sign in and registration](#sign-in-and-registration) · [Staff workspace](#staff-workspace) · [Customer account and shopping](#customer-account-and-shopping)
-
-## Setup
-
-Requirements: PHP 8.3 or newer, Composer, Node.js, and a supported SQLite, MySQL, MariaDB, or PostgreSQL database.
-
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-npm install
-npm run build
-php artisan serve
-```
-
-Configure the database connection in `.env` before running the migrations. The optional bootstrap staff account is created only when `BOOTSTRAP_ADMIN_USERNAME` and `BOOTSTRAP_ADMIN_PASSWORD` are configured.
-
-Run the automated checks with:
-
-```bash
-php artisan test
-```
-
-## TFA8 resource controllers and authentication
-
-- Customer management uses `Route::resource('customers', CustomerController::class)`.
-- Staff user management uses `Route::resource('users', UserController::class)`.
-- Both resource groups are protected by Laravel's `auth:web` middleware.
-- Laravel Breeze provides the staff login, registration, rate limiting, secure session regeneration, and logout flow.
-- Customer authentication remains on its separate `customer` guard.
-- Database migrations, factories, and the idempotent database seeder are included.
+[Sign in and registration](#sign-in-and-registration) · [Staff workspace](#staff-workspace) · [Customer account and shopping](#customer-account-and-shopping)
 
 ## Desktop screenshot gallery
 

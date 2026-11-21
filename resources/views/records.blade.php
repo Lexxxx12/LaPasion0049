@@ -1,20 +1,12 @@
-@php
-$indexRoute=match($kind){'customers'=>'customers.index','staff'=>'users.index',default=>'records.index'};
-$createRoute=match($kind){'customers'=>'customers.create','staff'=>'users.create',default=>'records.create'};
-$editRoute=match($kind){'customers'=>'customers.edit','staff'=>'users.edit',default=>'records.edit'};
-$destroyRoute=match($kind){'customers'=>'customers.destroy','staff'=>'users.destroy',default=>'records.destroy'};
-$indexParameters=$kind==='products'?['kind'=>$kind]:[];
-$recordParameters=fn($record)=>$kind==='products'?['kind'=>$kind,'id'=>$record->id]:$record;
-@endphp
 @extends('layout',['title'=>ucfirst($kind)])
 @section('subtitle'){{ match($kind){'products'=>'Manage product prices, images, and stock.','customers'=>'Manage customer details and login access.','staff'=>'Manage staff accounts and workspace access.'} }}@endsection
-@section('actions')<a class="button primary" href="{{ route($createRoute, $indexParameters) }}"><x-icon name="plus" :size="18"/> Add {{ $kind==='staff'?'staff member':Str::singular($kind) }}</a>@endsection
+@section('actions')<a class="button primary" href="{{ route('records.create', ['kind'=>$kind]) }}"><x-icon name="plus" :size="18"/> Add {{ $kind==='staff'?'staff member':Str::singular($kind) }}</a>@endsection
 @section('content')
 <section class="table-card">
 <div class="table-toolbar"><div class="table-title"><h2>{{ $kind==='products'?'Products':($kind==='customers'?'Customers':'Staff') }}</h2><span class="count-badge">{{ $total }}</span></div><form method="get" class="search-field"><x-icon name="search" :size="18"/><input name="q" value="{{ $filters['q']??'' }}" aria-label="Search {{ $kind }}" placeholder="Search {{ $kind }}..."><input type="hidden" name="status" value="{{ $status }}"><button class="icon-button" aria-label="Search"><x-icon name="arrow" :size="17"/></button></form></div>
 @if($kind!=='staff')<nav class="tabs" aria-label="Record status">
 @foreach($kind==='customers'?['active'=>'All customers','disabled'=>'Login paused','deleted'=>'Deleted']:['active'=>'Active products','archived'=>'Archived'] as $key=>$label)
-<a href="{{ route($indexRoute, $indexParameters + array_filter(['status'=>$key,'q'=>$filters['q']??''])) }}" @class(['is-active'=>$status===$key]) @if($status===$key) aria-current="page" @endif>{{ $label }}</a>
+<a href="/{{ $kind }}?{{ http_build_query(array_filter(['status'=>$key,'q'=>$filters['q']??''])) }}" @class(['is-active'=>$status===$key]) @if($status===$key) aria-current="page" @endif>{{ $label }}</a>
 @endforeach
 </nav>@endif
 @if($records->count())
@@ -37,17 +29,17 @@ $recordParameters=fn($record)=>$kind==='products'?['kind'=>$kind,'id'=>$record->
 @if($record->trashed())
 @if($kind==='customers')<form method="post" action="{{ route('customers.restore',$record->id) }}">@csrf<button class="button secondary small">Restore customer</button></form>@else<span class="muted">Archived</span>@endif
 @else
-<a class="button ghost small" href="{{ route($editRoute, $recordParameters($record)) }}"><x-icon name="edit" :size="15"/> Edit</a>
+<a class="button ghost small" href="{{ route('records.edit', ['kind'=>$kind, 'id'=>$record->id]) }}"><x-icon name="edit" :size="15"/> Edit</a>
 <details class="action-menu"><summary aria-label="More actions for {{ $record->name??$record->full_name }}">&bull;&bull;&bull;</summary><div class="action-menu-content">
 @if($kind==='customers'&&$record->account)<form method="post" action="{{ route('customers.access',$record->id) }}" @if($record->account->is_active) data-confirm="Pause this customer's login? Their details and purchase history will be kept." @endif>@csrf<input type="hidden" name="is_active" value="{{ $record->account->is_active?'0':'1' }}"><button>{{ $record->account->is_active?'Deactivate login':'Restore login' }}</button></form>@endif
-<form method="post" action="{{ route($destroyRoute, $recordParameters($record)) }}" data-confirm="{{ $kind==='products'?'Archive this product? It will no longer be available at the sales counter.':'Delete this record? Existing sales will be preserved.' }}">@csrf @method('delete')<button class="text-danger">{{ $kind==='products'?'Archive product':'Delete '.($kind==='staff'?'staff member':'customer') }}</button></form>
+<form method="post" action="{{ route('records.destroy', ['kind'=>$kind, 'id'=>$record->id]) }}" data-confirm="{{ $kind==='products'?'Archive this product? It will no longer be available at the sales counter.':'Delete this record? Existing sales will be preserved.' }}">@csrf @method('delete')<button class="text-danger">{{ $kind==='products'?'Archive product':'Delete '.($kind==='staff'?'staff member':'customer') }}</button></form>
 </div></details>
 @endif
 </div></td></tr>
 @endforeach</tbody></table></div>
 @else
 <div class="empty-state"><span class="empty-icon"><x-icon :name="$kind==='staff'?'staff':$kind" :size="32"/></span><h3>{{ filled($filters['q']??null)?'No matching '.$kind:($status==='deleted'?'No deleted customers':($status==='disabled'?'No paused accounts':($status==='archived'?'No archived products':'No '.$kind.' added'))) }}</h3><p>{{ filled($filters['q']??null)?'Try another name or clear your search.':match($kind){'products'=>'Add a product with a price and stock to start selling.','customers'=>'Customer registrations appear here. You can also add a customer yourself.',default=>'Add a staff member to give them access to the workspace.'} }}</p>
-@if(filled($filters['q']??null))<a class="button secondary" href="{{ route($indexRoute, $indexParameters) }}">Clear search</a>@elseif($status==='active')<a class="button secondary" href="{{ route($createRoute, $indexParameters) }}"><x-icon name="plus" :size="17"/> Add {{ $kind==='staff'?'staff member':Str::singular($kind) }}</a>@endif</div>
+@if(filled($filters['q']??null))<a class="button secondary" href="{{ route('records.index', ['kind'=>$kind]) }}">Clear search</a>@elseif($status==='active')<a class="button secondary" href="{{ route('records.create', ['kind'=>$kind]) }}"><x-icon name="plus" :size="17"/> Add {{ $kind==='staff'?'staff member':Str::singular($kind) }}</a>@endif</div>
 @endif
 <x-pagination :paginator="$records"/>
 </section>

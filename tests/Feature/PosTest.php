@@ -38,7 +38,7 @@ class PosTest extends TestCase
 
     public function test_management_requires_login(): void
     {
-        foreach (['/products', '/customers', '/users', '/sales', '/sales/create', '/users/create'] as $url) {
+        foreach (['/products', '/customers', '/staff', '/sales', '/sales/create', '/staff/create'] as $url) {
             $this->get($url)->assertRedirect('/login');
         }$this->post('/products', [])->assertRedirect('/login');
     }
@@ -56,7 +56,7 @@ class PosTest extends TestCase
     public function test_all_pages_render(): void
     {
         $this->actingAs($this->staff());
-        foreach (['/products', '/products/create', '/customers', '/customers/create', '/users', '/users/create', '/sales', '/sales/create'] as $url) {
+        foreach (['/products', '/products/create', '/customers', '/customers/create', '/staff', '/staff/create', '/sales', '/sales/create'] as $url) {
             $this->get($url)->assertOk();
         }
     }
@@ -111,12 +111,12 @@ class PosTest extends TestCase
     {
         $u = $this->staff();
         $this->actingAs($u);
-        $this->post('/users', ['username' => 'cashier', 'full_name' => 'Cashier', 'password' => 'password123', 'password_confirmation' => 'password123'])->assertRedirect('/users');
+        $this->post('/staff', ['username' => 'cashier', 'full_name' => 'Cashier', 'password' => 'password123', 'password_confirmation' => 'password123'])->assertRedirect('/staff');
         $other = User::where('username', 'cashier')->first();
         $this->assertTrue(Hash::check('password123', $other->password));
-        $this->put('/users/'.$other->id, ['username' => 'cashier', 'full_name' => 'Edited', 'password' => ''])->assertRedirect('/users');
+        $this->put('/staff/'.$other->id, ['username' => 'cashier', 'full_name' => 'Edited', 'password' => ''])->assertRedirect('/staff');
         $this->assertTrue(Hash::check('password123', $other->fresh()->password));
-        $this->delete('/users/'.$other->id)->assertRedirect();
+        $this->delete('/staff/'.$other->id)->assertRedirect();
         $this->post('/logout');
         $this->post('/login', ['username' => 'cashier', 'password' => 'password123'])->assertSessionHasErrors();
     }
@@ -124,7 +124,7 @@ class PosTest extends TestCase
     public function test_last_staff_is_protected(): void
     {
         $u = $this->staff();
-        $this->actingAs($u)->delete('/users/'.$u->id)->assertSessionHasErrors('delete');
+        $this->actingAs($u)->delete('/staff/'.$u->id)->assertSessionHasErrors('delete');
         $this->assertNotSoftDeleted($u);
     }
 
@@ -194,7 +194,7 @@ class PosTest extends TestCase
         Storage::fake('public');
         $this->actingAs($this->staff());
         $data = ['username' => 'avataruser', 'full_name' => 'Avatar User', 'password' => 'password123', 'password_confirmation' => 'password123', 'avatar' => UploadedFile::fake()->image('avatar.png')];
-        $this->post('/users', $data)->assertRedirect('/users');
+        $this->post('/staff', $data)->assertRedirect('/staff');
         $u = User::where('username', 'avataruser')->first();
         Storage::disk('public')->assertExists($u->avatar);
         $this->post('/products', ['name' => 'Bad image', 'price' => 1, 'stock_quantity' => 1, 'image' => UploadedFile::fake()->create('script.php', 1, 'text/plain')])->assertSessionHasErrors('image');
@@ -231,7 +231,7 @@ class PosTest extends TestCase
     {
         $this->actingAs($this->staff());
         $password = str_repeat('x', 73);
-        $this->post('/users', ['username' => 'longpassword', 'full_name' => 'Long password', 'password' => $password, 'password_confirmation' => $password])->assertSessionHasErrors('password');
+        $this->post('/staff', ['username' => 'longpassword', 'full_name' => 'Long password', 'password' => $password, 'password_confirmation' => $password])->assertSessionHasErrors('password');
         $this->assertDatabaseMissing('users', ['username' => 'longpassword']);
     }
 

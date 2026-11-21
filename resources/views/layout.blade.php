@@ -13,8 +13,8 @@
  ['url'=>route('orders.index'),'label'=>'Customer orders','icon'=>'bag','active'=>request()->routeIs('orders.*')],
  ['url'=>route('sales.create'),'label'=>'Sales counter','icon'=>'counter','active'=>request()->is('sales/create')],
  ['url'=>route('records.index', ['kind'=>'products']),'label'=>'Products','icon'=>'products','active'=>request()->is('products*')],
- ['url'=>route('customers.index'),'label'=>'Customers','icon'=>'customers','active'=>request()->is('customers*')],
- ['url'=>route('users.index'),'label'=>'Staff','icon'=>'staff','active'=>request()->is('users*')],
+ ['url'=>route('records.index', ['kind'=>'customers']),'label'=>'Customers','icon'=>'customers','active'=>request()->is('customers*')],
+ ['url'=>route('records.index', ['kind'=>'staff']),'label'=>'Staff','icon'=>'staff','active'=>request()->is('staff*')],
  ['url'=>route('sales.index'),'label'=>'Sales history','icon'=>'receipt','active'=>request()->is('sales')||request()->is('receipts/*')]
  ];
 @endphp
