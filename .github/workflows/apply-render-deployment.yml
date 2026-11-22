@@ -1,0 +1,28 @@
+name: Apply Render deployment
+
+on:
+  push:
+    paths:
+      - render-deployment.tar.gz
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply tested deployment files
+        run: |
+          tar -xzf render-deployment.tar.gz
+          rm render-deployment.tar.gz
+          git ls-files -ci --exclude-standard -z | xargs -0 -r git rm --cached --
+      - name: Publish audited application
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Fix confirmed security audit findings"
+          git push
